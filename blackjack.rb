@@ -70,6 +70,25 @@ class Dealer
     puts "  ...and one face-down card" unless @dealer_secret_card.nil?
   end
 
+  def reveal_card
+    card = @dealer_secret_card
+    @dealer_secret_card = nil
+    puts "The dealer turns up the #{card.name}"
+    @dealer_cards << card
+  end
+
+  def total
+    sum = 0
+    @dealer_cards.each do |card|
+      sum += card.value
+    end
+    sum
+  end
+
+  def bust?
+    self.total > 21
+  end
+
 end
 
 class Player
@@ -114,7 +133,7 @@ dealer.add_card(dealer.deal)
 player.hit(dealer.deal)
 dealer.add_secret_card(dealer.deal)
 
-while ( !(player.stay || player.bust?) ) do
+while ( !player.stay ) do
   player.list_hand
   dealer.list_hand
 
@@ -124,6 +143,7 @@ while ( !(player.stay || player.bust?) ) do
     card = dealer.deal
     puts "The dealer deals you a #{card.name}"
     player.hit(card)
+    break if player.bust?
   else
     puts "You stay"
     player.stay = true
@@ -135,4 +155,19 @@ if (player.bust?)
   return
 else
   puts "It is the dealers turn"
+end
+
+dealer.reveal_card
+
+while dealer.total <= 16 do
+  dealer.add_card(dealer.deal)
+end
+
+player.list_hand
+dealer.list_hand
+
+if (dealer.bust? || player.total > dealer.total)
+  puts "Player wins"
+else
+  puts "Dealer wins"
 end

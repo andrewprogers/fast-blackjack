@@ -10,39 +10,65 @@ class Card
   end
 
   def value
-    @rank
+    @rank <= 10 ? @rank : 10
+  end
+
+  def name
+    face = case rank
+    when 1
+      "Ace"
+    when 11
+      "Jack"
+    when 12
+      "Queen"
+    when 13
+      "King"
+    else
+      @rank
+    end
+
+    "#{face} of #{@suit}"
   end
 
 end
 
-
-class Deck
+class Dealer
   def initialize(num_decks)
-    @num_decks = num_decks
-    @stack = []
+    @dealer_cards = []
+    @dealer_secret_cards = []
+    @deck = []
     ranks = [*(1..13)]
     suits = "Clubs Diamonds Hearts Spades".split(" ")
     num_decks.times do
       ranks.each do |rank|
         suits.each do |suit|
-          @stack.push(Card.new(rank, suit))
+          @deck.push(Card.new(rank, suit))
         end
       end
     end
   end
 
   def shuffle
-    @stack.shuffle!
+    @deck.shuffle!
   end
 
   def deal
-    @stack.pop()
+    @deck.pop()
   end
+
+  def add_card(card)
+    @dealer_cards << card
+  end
+
+  def add_secret_card(card)
+    @dealer_secret_cards << card
+  end
+
 end
 
 class Player
-  def initialize(initial_cards)
-    @cards = initial_cards
+  def initialize()
+    @cards = []
   end
 
   def total
@@ -60,10 +86,22 @@ class Player
   def bust?
     self.total > 21
   end
+
+  def list_hand
+    puts "Cards in the players hand:"
+    @cards.each { |card| puts card.name }
+  end
 end
 
 puts "Welcome to Blackjack."
 
 #game init
 puts "Starting a new game"
-deck = Deck.new(1)
+player = Player.new()
+dealer = Dealer.new(1)
+
+puts "The dealer deals you your hand."
+player.hit(dealer.deal)
+dealer.add_card(dealer.deal)
+player.hit(dealer.deal)
+dealer.add_secret_card(dealer.deal)

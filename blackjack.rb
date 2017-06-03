@@ -13,54 +13,55 @@ class Game
     @deck = Deck.new()
   end
 
-  def deal_initial(player, dealer, deck)
+  def deal_initial()
     puts "The dealer deals you your hand."
-    player.hit(deck.deal)
-    dealer.hit(deck.deal)
-    player.hit(deck.deal)
-    dealer.deal_facedown(deck.deal)
+    @player.hit(@deck.deal)
+    @dealer.hit(@deck.deal)
+    @player.hit(@deck.deal)
+    @dealer.deal_facedown(@deck.deal)
     puts "\n"
   end
 
-  def show_hands(*hands)
-    hands.each { |hand| hand.list_hand }
+  def show_hands()
+    @player.list_hand
+    @dealer.list_hand
   end
 
-  def player_turn(player, dealer, deck)
-    while ( !player.stay ) do
-      show_hands(player, dealer)
+  def player_turn()
+    while ( !@player.stay ) do
+      show_hands()
 
       print "\nHit - h, Stay - s (or any other key): "
       char = gets.chomp
       if char == 'h'
-        card = deck.deal
-        player.hit(card)
-        break if player.bust
+        card = @deck.deal
+        @player.hit(card)
+        break if @player.bust
       else
         puts "You stay"
-        player.stay = true
+        @player.stay = true
       end
     end
   end
 
-  def dealer_turn(dealer, deck)
+  def dealer_turn()
     puts "It is the dealers turn"
-    dealer.reveal_card
-    while dealer.total <= 16 do
-      dealer.hit(deck.deal)
+    @dealer.reveal_card
+    while @dealer.total <= 16 do
+      @dealer.hit(@deck.deal)
     end
   end
 
-  def scoring(player, dealer)
+  def scoring()
     puts "Final Hands:"
-    show_hands(player, dealer)
-    if player.bust
+    show_hands()
+    if @player.bust
       puts "You went bust, dealer wins"
-    elsif dealer.bust
+    elsif @dealer.bust
       puts "Dealer goes bust, player wins"
     else
-      p_score = player.total
-      d_score = dealer.total
+      p_score = @player.total
+      d_score = @dealer.total
       puts "Player: #{p_score}. Dealer: #{d_score}."
       if p_score > d_score
         puts "Player wins"
@@ -73,10 +74,10 @@ class Game
   end
 
   def play
-    deal_initial(@player, @dealer, @deck)
-    player_turn(@player, @dealer, @deck)
-    dealer_turn(@dealer, @deck) unless @player.bust
-    scoring(@player, @dealer)
+    deal_initial()
+    player_turn()
+    dealer_turn() unless @player.bust
+    scoring()
   end
 end
 

@@ -1,3 +1,6 @@
+require_relative "deck"
+require_relative "card"
+
 class GenericHand
   attr_accessor :stay
   attr_reader :bust
@@ -21,10 +24,15 @@ class GenericHand
 
   def list_hand
     puts "#{@name}'s hand:"
-    @cards.each { |card| puts "  " + card.name }
+    ascii_cards = @cards.map { |card| card.ascii_representation.split("\n") }
+    loop do
+      line = []
+      ascii_cards.each { |card| line << card.shift }
+      break if line[0].nil?
+      puts line.join("  ")
+    end
   end
 end
-
 
 class Dealer < GenericHand
   def initialize()
@@ -33,17 +41,14 @@ class Dealer < GenericHand
     @name = "Dealer"
   end
 
-  def list_hand
-    super
-    puts "  ...and one face down card" unless @facedown_card.nil?
-  end
-
   def deal_facedown(card)
     puts "The dealer deals one card face down to themself."
+    @cards << Card.new(" ", "?")
     @facedown_card = card
   end
 
   def reveal_card
+    @cards.pop()
     @cards << @facedown_card
     @facedown_card = nil
     puts "The dealer turns up the #{@cards[-1].name}"

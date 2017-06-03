@@ -1,7 +1,6 @@
 # create a deck of cards
 require "pry"
 
-require_relative "card"
 require_relative "deck"
 require_relative "hands"
 

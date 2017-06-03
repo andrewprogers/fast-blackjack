@@ -7,6 +7,7 @@ class Card
   end
 
   def value
+    return 0 unless @rank.is_a?(Integer)
     @rank <= 10 ? @rank : 10
   end
 
@@ -24,5 +25,40 @@ class Card
       @rank
     end
     "#{face} of #{@suit}"
+  end
+
+  def symbol
+    case @suit
+    when "Spades"
+      '♠'
+    when "Diamonds"
+      '♦'
+    when "Hearts"
+      '♥'
+    when "Clubs"
+      '♣'
+    else
+      '?'
+    end
+  end
+
+  def ascii_representation
+    if (@rank == 10)
+      r = "10"
+    else
+      r = " " + name[0]
+    end
+    s = symbol
+    <<~EOS
+      ┌───────────┐
+      |#{r}         |
+      |           |
+      |           |
+      |     #{s}     |
+      |           |
+      |           |
+      |        #{r} |
+      └───────────┘
+      EOS
   end
 end

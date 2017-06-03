@@ -182,7 +182,20 @@ class Game
   end
 end
 
+def play_again?
+  loop do
+    print "\nPlay again(y/n)? "
+    user_input = gets.chomp.downcase
+    return true if user_input == 'y'
+    return false if user_input == 'n'
+    puts "Invalid entry, try again"
+  end
+end
+
 
 puts "Welcome to Blackjack."
 puts "----------------------------\n\n"
-Game.new().play()
+loop do
+  Game.new().play()
+  break unless play_again?
+end

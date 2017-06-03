@@ -49,74 +49,59 @@ class Deck
   end
 end
 
-class Dealer
-  def initialize()
-    @dealer_cards = []
-    @dealer_secret_card = nil
-  end
-
-  def add_card(card)
-    @dealer_cards << card
-  end
-
-  def add_secret_card(card)
-    @dealer_secret_card = card
-  end
-
-  def list_hand
-    puts "\nCards in the dealers hand:"
-    @dealer_cards.each { |card| puts "  " + card.name }
-    puts "  ...and one face-down card" unless @dealer_secret_card.nil?
-  end
-
-  def reveal_card
-    card = @dealer_secret_card
-    @dealer_secret_card = nil
-    puts "The dealer turns up the #{card.name}"
-    @dealer_cards << card
-  end
-
-  def total
-    sum = 0
-    @dealer_cards.each do |card|
-      sum += card.value
-    end
-    sum
-  end
-
-  def bust?
-    self.total > 21
-  end
-
-end
-
-class Player
+class GenericHand
   attr_accessor :stay
+  attr_reader :bust
+
   def initialize()
     @cards = []
     @stay = false
+    @bust = false
+    @name = "generic player"
   end
 
   def total
-    sum = 0
-    @cards.each do |card|
-      sum += card.value
-    end
-    sum
+    @cards.inject(0) { |acc, card| acc + card.value }
   end
 
   def hit(card)
+    puts "#{@name} was dealt a #{card.name}"
     @cards << card
-  end
-
-  def bust?
-    self.total > 21
+    @bust = true if (self.total > 21)
   end
 
   def list_hand
-    puts "\nCards in the players hand:"
+    puts "#{@name}'s hand:"
     @cards.each { |card| puts "  " + card.name }
   end
+end
+
+
+class Dealer < GenericHand
+  def initialize()
+    super
+    @facedown_card = nil
+    @name = "Dealer"
+  end
+
+  def deal_facedown(card)
+    puts "The dealer deals one card face down to themself."
+    @facedown_card = card
+  end
+
+  def reveal_card
+    @cards << @facedown_card
+    @facedown_card = nil
+    puts "The dealer turns up the #{@cards[-1].name}"
+  end
+end
+
+class Player < GenericHand
+  def initialize()
+    super
+    @name = "Player"
+  end
+
 end
 
 def print_title
@@ -135,9 +120,9 @@ deck = Deck.new()
 
 puts "The dealer deals you your hand."
 player.hit(deck.deal)
-dealer.add_card(deck.deal)
+dealer.hit(deck.deal)
 player.hit(deck.deal)
-dealer.add_secret_card(deck.deal)
+dealer.deal_facedown(deck.deal)
 
 while ( !player.stay ) do
   player.list_hand
@@ -147,16 +132,15 @@ while ( !player.stay ) do
   char = gets.chomp
   if char == 'h'
     card = deck.deal
-    puts "The dealer deals you a #{card.name}"
     player.hit(card)
-    break if player.bust?
+    break if player.bust
   else
     puts "You stay"
     player.stay = true
   end
 end
 
-if (player.bust?)
+if (player.bust)
   puts "You've gone bust!!! You lose"
   return
 else
@@ -166,13 +150,13 @@ end
 dealer.reveal_card
 
 while dealer.total <= 16 do
-  dealer.add_card(deck.deal)
+  dealer.hit(deck.deal)
 end
 
 player.list_hand
 dealer.list_hand
 
-if (dealer.bust? || player.total > dealer.total)
+if (dealer.bust || player.total > dealer.total)
   puts "Player wins"
 elsif (player.total == dealer.total)
   puts "Tie game"

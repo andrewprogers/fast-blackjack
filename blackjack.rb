@@ -29,31 +29,30 @@ class Card
 
     "#{face} of #{@suit}"
   end
-
 end
 
-class Dealer
-  def initialize(num_decks)
-    @dealer_cards = []
-    @dealer_secret_card = nil
+class Deck
+  def initialize
     @deck = []
     ranks = [*(1..13)]
     suits = "Clubs Diamonds Hearts Spades".split(" ")
-    num_decks.times do
-      ranks.each do |rank|
-        suits.each do |suit|
-          @deck.push(Card.new(rank, suit))
-        end
+    ranks.each do |rank|
+      suits.each do |suit|
+        @deck.push(Card.new(rank, suit))
       end
     end
-  end
-
-  def shuffle
     @deck.shuffle!
   end
 
   def deal
     @deck.pop()
+  end
+end
+
+class Dealer
+  def initialize()
+    @dealer_cards = []
+    @dealer_secret_card = nil
   end
 
   def add_card(card)
@@ -120,18 +119,25 @@ class Player
   end
 end
 
-puts "Welcome to Blackjack."
+def print_title
+  puts "Welcome to Blackjack."
+  puts "----------------------------"
+end
 
-#game init
+
+
+print_title
+
 player = Player.new()
-dealer = Dealer.new(1)
-dealer.shuffle()
+dealer = Dealer.new()
+deck = Deck.new()
+
 
 puts "The dealer deals you your hand."
-player.hit(dealer.deal)
-dealer.add_card(dealer.deal)
-player.hit(dealer.deal)
-dealer.add_secret_card(dealer.deal)
+player.hit(deck.deal)
+dealer.add_card(deck.deal)
+player.hit(deck.deal)
+dealer.add_secret_card(deck.deal)
 
 while ( !player.stay ) do
   player.list_hand
@@ -140,7 +146,7 @@ while ( !player.stay ) do
   print "\nHit - h, Stay - s (or any other key): "
   char = gets.chomp
   if char == 'h'
-    card = dealer.deal
+    card = deck.deal
     puts "The dealer deals you a #{card.name}"
     player.hit(card)
     break if player.bust?
@@ -160,7 +166,7 @@ end
 dealer.reveal_card
 
 while dealer.total <= 16 do
-  dealer.add_card(dealer.deal)
+  dealer.add_card(deck.deal)
 end
 
 player.list_hand
@@ -168,6 +174,8 @@ dealer.list_hand
 
 if (dealer.bust? || player.total > dealer.total)
   puts "Player wins"
+elsif (player.total == dealer.total)
+  puts "Tie game"
 else
   puts "Dealer wins"
 end
